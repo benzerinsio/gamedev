@@ -16,10 +16,15 @@ public class enemy_patrol : MonoBehaviour
     [SerializeField] GameObject player;
     [SerializeField] Transform attackPoint; //from where the attack begins
     [SerializeField] Transform patrolPoint; // from where the enemy sees
+    private bool inDashAnimation;
+    private bool canDash;
+    private float preDashTimer = 0.5f;
+    private float dashTime = 0.5f;
+    private float dashCooldown = 1f;
     private float dashPower = 28f; 
-    private float playerinRange = 5f; //the minimum distance to dash towards the player
+    private float playerinRange = 10f; //the minimum distance to dash towards the player
     private float distance; //distance between the enemy and the player
-    private float viewRange = 10f; //distance of the vision of the enemy
+    private float viewRange = 20f; //distance of the vision of the enemy
     private bool isFollowing;
 
     //new tutorial section
@@ -29,10 +34,16 @@ public class enemy_patrol : MonoBehaviour
     private Animator anim;
     private Transform currentPoint;
 
+    //Attack Section
+    private float attackRange = 2f;
+    private bool canAttack = true;
+    private float attackCooldown = 0.5f;
 
 
     void Start()
     {
+        canDash = true;
+        inDashAnimation = false;
         isWaiting = false;
         isFollowing = false;
         speed = nonFollowing;
@@ -54,9 +65,13 @@ public class enemy_patrol : MonoBehaviour
                 isFollowing = true;
                 speed = followSpeed;
                 distance = Vector2.Distance(transform.position, player.transform.position);
-                if (distance <= playerinRange)
+                if (distance <= playerinRange && distance > attackRange && canDash)
                 {
-                    dashAttack();
+                    StartCoroutine(dashAttack());
+                }
+                else if(distance <= attackRange && canAttack)
+                {
+                    StartCoroutine(attack());
                 }
             }
         } else
@@ -79,6 +94,10 @@ public class enemy_patrol : MonoBehaviour
     private void FixedUpdate()
     {
         //Debug.Log(rb.velocity.x);
+        if (inDashAnimation || !canAttack)//atualmente cancela o rotate e a velocidade
+        {
+            return;
+        }
         
         if (rb.velocity.x > 0f && !isFacingRight)
         {
@@ -118,9 +137,40 @@ public class enemy_patrol : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
     }
 
-    private void dashAttack()
+    //private IEnumerator jumpCut()
+    private IEnumerator dashAttack()
     {
+        Debug.Log("Preparando Dash");
+        inDashAnimation = true;
+        canDash = false;
+        rb.velocity = new Vector2(0f, 0f);
+        //change animation to pre attack
+        yield return new WaitForSeconds(preDashTimer);
+        //change animation to attack
+        if (isFacingRight)
+        {
+            rb.velocity = new Vector2(dashPower, 0f);
+        } else
+        {
+            rb.velocity = new Vector2(-dashPower, 0f);
+        }
+        yield return new WaitForSeconds(dashTime);
+        inDashAnimation = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+
+        // rb.velocity = new Vector2(horizontalDirection * dashingPower, verticalDirection * dashingPower);
         //normal dash since is using 
+    }
+
+    private IEnumerator attack()
+    {
+        rb.velocity = new Vector2(0f, 0f);
+        canAttack = false;
+        //attack
+        Debug.Log("Atakay");
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true;
     }
 
     private void changePointNoWait(GameObject point)
