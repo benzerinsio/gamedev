@@ -52,8 +52,10 @@ public class Player_Movement : MonoBehaviour
     [SerializeField] private Transform attackPoint;
     private float attackBuffer = 0.1f;//if the player press the button starts the buffer, to set 
     public float attackRange = 1.09f;
+    private float attackCounter;
     private bool isAttacking = false;
     private bool inSecondAttack = false;
+    private bool canAttack = true;
 
     //Debug Tools
     private int bugCounter = 0;
@@ -64,6 +66,7 @@ public class Player_Movement : MonoBehaviour
         bc = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
         gravityScale = rb.gravityScale;
+        attackCounter = -0.1f;
         //attackPoint = GetComponent<GameObjec>(); -> arrastar o go
     }
 
@@ -74,6 +77,12 @@ public class Player_Movement : MonoBehaviour
         verticalDirection = Input.GetAxisRaw("Vertical");
 
         jumpBufferCounter -= Time.deltaTime;
+        attackCounter -= Time.deltaTime;
+
+        if(isGrounded() && !isAttacking)
+        {
+            canAttack = true;
+        }
 
         if (isGrounded())  //setting coyote time
         {
@@ -84,6 +93,7 @@ public class Player_Movement : MonoBehaviour
         }
         else
         {
+            canAttack = false;
             coyoteCounter -= Time.deltaTime;
         }
 
@@ -93,13 +103,21 @@ public class Player_Movement : MonoBehaviour
         }
         if (Input.GetButtonDown("Attack"))//do certain verification -> if the player is in a state that cannot attack, start the counter, if not, do the attack
         {
-            Debug.Log("Attack Button");
+            attackCounter = attackBuffer;
+        }
+
+        if(attackCounter >=0f && canAttack && !inSecondAttack)
+        {
+            canAttack = false;
+
             if (isAttacking)
             {
+                //Debug.Log("2");
                 Attack(2);//first attack animation (or dash attack)
             }
             else
             {
+                //Debug.Log("1");
                 Attack(1);//second attack animation
             }
         }
@@ -220,10 +238,12 @@ public class Player_Movement : MonoBehaviour
 
     private IEnumerator firstAttackRoutine()
     {
-        Debug.Log("Attack 1");
-        isAttacking = true;
+        //Debug.Log("Attack 1");
+        //canAttack = false;//dont let the player spam the attack
+        isAttacking = true;//
         rb.velocity = new Vector2(0f, 0f);
         yield return new WaitForSeconds(0.4f);
+        canAttack = true;
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
         foreach (Collider2D enemy in hitEnemies)
         {
@@ -238,7 +258,7 @@ public class Player_Movement : MonoBehaviour
 
     private IEnumerator secondAttackRoutine()
     {
-        Debug.Log("Attack 2");
+        //Debug.Log("Attack 2");
         inSecondAttack = true;
         yield return new WaitForSeconds(0.1f);
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
