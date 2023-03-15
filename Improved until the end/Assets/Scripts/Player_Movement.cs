@@ -93,6 +93,7 @@ public class Player_Movement : MonoBehaviour
         }
         if (Input.GetButtonDown("Attack"))//do certain verification -> if the player is in a state that cannot attack, start the counter, if not, do the attack
         {
+            Debug.Log("Attack Button");
             if (isAttacking)
             {
                 Attack(2);//first attack animation (or dash attack)
@@ -105,7 +106,7 @@ public class Player_Movement : MonoBehaviour
         //Debug.Log("Dash: " + animator.GetBool("isDashing") + " Attack: " + animator.GetInteger("State"));
         animationHandler();
 
-        if (isDashing)//if is dashing, can't perform another action
+        if (isDashing || isAttacking)//if is dashing, can't perform another action (do da same with the attack)
         {
             return;
         }
@@ -132,6 +133,11 @@ public class Player_Movement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDashing || isAttacking)//if is dashing, can't perform another action (do the same for the attack)
+        {
+            return;
+        }
+
         if (horizontalDirection < 0f && isFacingRight)
         {
             Rotate();
@@ -139,11 +145,6 @@ public class Player_Movement : MonoBehaviour
         else if (horizontalDirection > 0f && !isFacingRight)
         {
             Rotate();
-        }
-        
-        if (isDashing)//if is dashing, can't perform another action
-        {
-            return;
         }
 
         rb.velocity = new Vector2(horizontalDirection * horizontalSpeed, rb.velocity.y);
@@ -173,13 +174,13 @@ public class Player_Movement : MonoBehaviour
         return Physics2D.BoxCast(bc.bounds.center/*the actual position*/, bc.bounds.size/*size of each axis*/, 0f, Vector2.down/*or Vector2(0, -1)*/, .1f, jumpableGround);
     }
 
-    private void Attack(int wich)
+    private void Attack(int which)
     {
         animator.SetBool("isDashing", false);
-        if(wich == 1)
+        if(which == 1)
         {
             StartCoroutine(firstAttackRoutine());
-        } else if (wich == 2)
+        } else if (which == 2)
         {
             StartCoroutine(secondAttackRoutine());
         }
@@ -219,7 +220,9 @@ public class Player_Movement : MonoBehaviour
 
     private IEnumerator firstAttackRoutine()
     {
+        Debug.Log("Attack 1");
         isAttacking = true;
+        rb.velocity = new Vector2(0f, 0f);
         yield return new WaitForSeconds(0.4f);
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
         foreach (Collider2D enemy in hitEnemies)
@@ -235,6 +238,7 @@ public class Player_Movement : MonoBehaviour
 
     private IEnumerator secondAttackRoutine()
     {
+        Debug.Log("Attack 2");
         inSecondAttack = true;
         yield return new WaitForSeconds(0.1f);
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
@@ -263,7 +267,7 @@ public class Player_Movement : MonoBehaviour
         tr.emitting = true;
         yield return new WaitForSeconds(dashingTime);
         rb.gravityScale = gravityScale;
-        rb.velocity = new Vector2(rb.velocity.x, 0f);
+        rb.velocity = new Vector2(0f, 0f);
         tr.emitting = false;
         isDashing = false;
         yield return new WaitForSeconds(dashingCooldown);
