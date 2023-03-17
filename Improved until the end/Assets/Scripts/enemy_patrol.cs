@@ -27,6 +27,11 @@ public class enemy_patrol : MonoBehaviour
     private float viewRange = 20f; //distance of the vision of the enemy
     private bool isFollowing;
 
+    //Dash Section
+    private bool charging;
+    private bool dashing;
+    private SpriteRenderer sprite;
+
     //new tutorial section
     [SerializeField] GameObject pointA;
     [SerializeField] GameObject pointB;
@@ -39,9 +44,17 @@ public class enemy_patrol : MonoBehaviour
     private bool canAttack = true;
     private float attackCooldown = 0.5f;
 
+    //Animation Section
+    private Animator animator;
+    private enum MovementState { walk, run, charge, dash, attack };
+    private MovementState state;
+
 
     void Start()
     {
+        charging = false;
+        dashing = false;
+        state = MovementState.walk;
         canDash = true;
         inDashAnimation = false;
         isWaiting = false;
@@ -50,6 +63,8 @@ public class enemy_patrol : MonoBehaviour
         isFacingRight = true;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
         currentPoint = pointB.transform;
     }
 
@@ -69,9 +84,14 @@ public class enemy_patrol : MonoBehaviour
                 {
                     StartCoroutine(dashAttack());
                 }
-                else if(distance <= attackRange && canAttack)
+                else if(distance <= attackRange)
                 {
-                    StartCoroutine(attack());
+                    speed = 0;
+                    if (canAttack)
+                    {
+                        //Debug.Log("a");
+                        StartCoroutine(attack());
+                    }
                 }
             }
         } else
@@ -89,6 +109,8 @@ public class enemy_patrol : MonoBehaviour
             //StartCoroutine(changePoint(pointB));
             changePointNoWait(pointB);
         }
+
+        animationHandler();
     }
 
     private void FixedUpdate()
@@ -140,12 +162,15 @@ public class enemy_patrol : MonoBehaviour
     //private IEnumerator jumpCut()
     private IEnumerator dashAttack()
     {
-        Debug.Log("Preparando Dash");
+        charging = true;
         inDashAnimation = true;
         canDash = false;
         rb.velocity = new Vector2(0f, 0f);
         //change animation to pre attack
         yield return new WaitForSeconds(preDashTimer);
+        charging = false;
+        dashing = true;
+        //dashing
         //change animation to attack
         if (isFacingRight)
         {
@@ -156,6 +181,7 @@ public class enemy_patrol : MonoBehaviour
         }
         yield return new WaitForSeconds(dashTime);
         inDashAnimation = false;
+        dashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
 
@@ -167,8 +193,6 @@ public class enemy_patrol : MonoBehaviour
     {
         rb.velocity = new Vector2(0f, 0f);
         canAttack = false;
-        //attack
-        Debug.Log("Atakay");
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
     }
@@ -176,5 +200,34 @@ public class enemy_patrol : MonoBehaviour
     private void changePointNoWait(GameObject point)
     {
         currentPoint = point.transform;
+    }
+
+    private void animationHandler()
+    {
+        Debug.Log(state);
+        if (isFollowing && !charging && canAttack)
+        {
+            state = MovementState.run;
+            animator.SetInteger("State", (int)state);
+        }
+        else if (charging)//verify how to change de sprite color
+        {
+            state = MovementState.charge;
+            animator.SetInteger("State", (int)state);
+        } else if (dashing || isFollowing && !canAttack) 
+        {
+            state = MovementState.dash;
+            animator.SetInteger("State", (int)state);
+        }
+        else if (isFollowing && !canAttack)
+        {
+            state = MovementState.attack;
+            animator.SetInteger("State", (int)state);
+        } else
+        {
+            state = MovementState.walk;
+            animator.SetInteger("State", (int)state);
+        }
+        
     }
 }
