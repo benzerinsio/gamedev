@@ -93,7 +93,7 @@ public class Player_Movement : MonoBehaviour
         }
         else
         {
-            canAttack = false;
+            //canAttack = false;
             coyoteCounter -= Time.deltaTime;
         }
 
@@ -106,11 +106,11 @@ public class Player_Movement : MonoBehaviour
             attackCounter = attackBuffer;
         }
 
-        if(attackCounter >=0f && canAttack && !inSecondAttack)
+        if(attackCounter >=0f && canAttack && !inSecondAttack)//verificar se ta funcionando o segundo attack
         {
             canAttack = false;
 
-            if (isAttacking)
+            if (isAttacking || !isGrounded())
             {
                 //Debug.Log("2");
                 Attack(2);//first attack animation (or dash attack)
@@ -259,6 +259,7 @@ public class Player_Movement : MonoBehaviour
     private IEnumerator secondAttackRoutine()
     {
         //Debug.Log("Attack 2");
+        canAttack = false;
         inSecondAttack = true;
         yield return new WaitForSeconds(0.1f);
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
