@@ -40,7 +40,8 @@ public class enemy_patrol : MonoBehaviour
     private Transform currentPoint;
 
     //Attack Section
-    private float attackRange = 2f;
+    private float attackCircle = 1.09f;
+    private float attackRange = 2.5f;
     private bool canAttack = true;
     private float attackCooldown = 0.5f;
 
@@ -188,11 +189,20 @@ public class enemy_patrol : MonoBehaviour
         // rb.velocity = new Vector2(horizontalDirection * dashingPower, verticalDirection * dashingPower);
         //normal dash since is using 
     }
-
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(attackPoint.position, attackCircle);
+    }
     private IEnumerator attack()
     {
         rb.velocity = new Vector2(0f, 0f);
         canAttack = false;
+        Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackCircle);
+        foreach (Collider2D name in hitPlayer)
+        {
+            Debug.Log(name.name);
+        }
+        //Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
     }
@@ -204,7 +214,7 @@ public class enemy_patrol : MonoBehaviour
 
     private void animationHandler()
     {
-        Debug.Log(state);
+        //Debug.Log(state);
         if (isFollowing && !charging && canAttack)
         {
             state = MovementState.run;
