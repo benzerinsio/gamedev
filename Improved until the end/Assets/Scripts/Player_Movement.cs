@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player_Movement : MonoBehaviour
 {
@@ -365,5 +366,13 @@ public class Player_Movement : MonoBehaviour
             animator.ResetTrigger("Second_Attack");
         }
 
+    }
+
+    public void Die(GameObject killer)//get which game object killed the player
+    {
+        //load a new scene for each gameobject (unless it's the boss)
+        //myRigidBody.bodyType = RigidbodyType2D.Static; -> don't let the player move (it's dead)
+        //animation.SetTrigger("Death"); -> go to death animation
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().name
     }
 }
