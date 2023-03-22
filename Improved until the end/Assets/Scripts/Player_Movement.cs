@@ -368,8 +368,15 @@ public class Player_Movement : MonoBehaviour
 
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log(collision.gameObject.name);//to check trap
+    }
+
     public void Die(GameObject killer)//get which game object killed the player
     {
+        Debug.Log("I'm dead by: "+killer.name);
+        //Debug.Log("I'm dead now. The " + killer.name +"killed me!");
         //load a new scene for each gameobject (unless it's the boss)
         //myRigidBody.bodyType = RigidbodyType2D.Static; -> don't let the player move (it's dead)
         //animation.SetTrigger("Death"); -> go to death animation

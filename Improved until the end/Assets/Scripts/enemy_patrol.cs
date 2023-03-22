@@ -44,6 +44,7 @@ public class enemy_patrol : MonoBehaviour
     private float attackRange = 2.5f;
     private bool canAttack = true;
     private float attackCooldown = 1f;
+    private Player_Movement player_movement;
 
     //Animation Section
     private Animator animator;
@@ -200,6 +201,10 @@ public class enemy_patrol : MonoBehaviour
         Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackCircle);
         foreach (Collider2D name in hitPlayer)
         {
+            if (name.name == "Player")
+            {
+                player_movement.Die(gameObject);
+            }
             //Debug.Log(name.name);
             //mandar para a fase de monks only e avisar o player
         }
