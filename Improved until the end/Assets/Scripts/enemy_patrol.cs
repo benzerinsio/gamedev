@@ -22,9 +22,9 @@ public class enemy_patrol : MonoBehaviour
     private float dashTime = 0.5f;
     private float dashCooldown = 1f;
     private float dashPower = 28f; 
-    private float playerinRange = 10f; //the minimum distance to dash towards the player
+    private float playerinRange = 7f; //the minimum distance to dash towards the player
     private float distance; //distance between the enemy and the player
-    private float viewRange = 20f; //distance of the vision of the enemy
+    private float viewRange = 12f; //distance of the vision of the enemy
     private bool isFollowing;
 
     //Dash Section
@@ -73,6 +73,7 @@ public class enemy_patrol : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log("Point" + currentPoint.transform);
         RaycastHit2D hit = Physics2D.Raycast(patrolPoint.position, transform.TransformDirection(Vector2.right), viewRange);//get anything to get hit by the ray
         Debug.DrawRay(patrolPoint.position, patrolPoint.TransformDirection(Vector2.right) * viewRange, Color.red);//better to visualization
         if (hit)

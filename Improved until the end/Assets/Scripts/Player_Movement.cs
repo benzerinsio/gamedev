@@ -24,7 +24,7 @@ public class Player_Movement : MonoBehaviour
     private float coyoteCounter;
     private float jumpBuffer = 0.1f;
     private float jumpBufferCounter;
-    private float jumpPower = 15f;
+    private float jumpPower = 16f;
     private float fallIncreaseSpeed = -70f;
     private float maxFallSpeed = -25f;
 
@@ -298,6 +298,7 @@ public class Player_Movement : MonoBehaviour
 
     private void animationHandler()
     {
+        //Debug.Log("X: " + rb.velocity.x + " Grounded: " + isGrounded());
         //running / idle section
         if(rb.velocity.x != 0f && isGrounded())
         {
