@@ -371,7 +371,11 @@ public class Player_Movement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log(collision.gameObject.name);//to check trap
+        //if(collision.gameObject.name == "Trap")
+        //{
+        //  Die(collision.gameObject);
+        //}
+        //Debug.Log(collision.gameObject.name);//to check trap
     }
 
     public void Die(GameObject killer)//get which game object killed the player

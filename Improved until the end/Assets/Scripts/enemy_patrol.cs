@@ -74,6 +74,11 @@ public class enemy_patrol : MonoBehaviour
     void Update()
     {
         //Debug.Log("Point" + currentPoint.transform);
+        distance = Vector2.Distance(transform.position, player.transform.position);
+        if (!isFollowing && inDashAnimation || distance <= attackRange)
+        {
+            rb.velocity = new Vector2(0f, 0f);
+        }
         RaycastHit2D hit = Physics2D.Raycast(patrolPoint.position, transform.TransformDirection(Vector2.right), viewRange);//get anything to get hit by the ray
         Debug.DrawRay(patrolPoint.position, patrolPoint.TransformDirection(Vector2.right) * viewRange, Color.red);//better to visualization
         if (hit)
@@ -82,14 +87,14 @@ public class enemy_patrol : MonoBehaviour
             {
                 isFollowing = true;
                 speed = followSpeed;
-                distance = Vector2.Distance(transform.position, player.transform.position);
+                
                 if (distance <= playerinRange && distance > attackRange && canDash)
                 {
                     StartCoroutine(dashAttack());
                 }
                 else if(distance <= attackRange)
                 {
-                    speed = 0;
+
                     if (canAttack)
                     {
                         //Debug.Log("a");
@@ -197,14 +202,15 @@ public class enemy_patrol : MonoBehaviour
     }
     private IEnumerator attack()
     {
-        rb.velocity = new Vector2(0f, 0f);
+        //rb.velocity = new Vector2(0f, 0f);
         canAttack = false;
         Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackCircle);
         foreach (Collider2D name in hitPlayer)
         {
             if (name.name == "Player")
             {
-                player_movement.Die(gameObject);
+                Debug.Log("Bati no troxa");
+                //player_movement.Die(gameObject);
             }
             //Debug.Log(name.name);
             //mandar para a fase de monks only e avisar o player
@@ -221,7 +227,6 @@ public class enemy_patrol : MonoBehaviour
 
     private void animationHandler()
     {
-        //Debug.Log(state);
         if (isFollowing && !charging && canAttack)
         {
             state = MovementState.run;
