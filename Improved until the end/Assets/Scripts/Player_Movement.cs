@@ -68,7 +68,6 @@ public class Player_Movement : MonoBehaviour
         animator = GetComponent<Animator>();
         gravityScale = rb.gravityScale;
         attackCounter = -0.1f;
-        //attackPoint = GetComponent<GameObjec>(); -> arrastar o go
     }
 
     // Update is called once per frame
@@ -113,16 +112,13 @@ public class Player_Movement : MonoBehaviour
 
             if (isAttacking || !isGrounded())
             {
-                //Debug.Log("2");
                 Attack(2);//first attack animation (or dash attack)
             }
             else
             {
-                //Debug.Log("1");
                 Attack(1);//second attack animation
             }
         }
-        //Debug.Log("Dash: " + animator.GetBool("isDashing") + " Attack: " + animator.GetInteger("State"));
         animationHandler();
 
         if (isDashing || isAttacking)//if is dashing, can't perform another action (do da same with the attack)
@@ -239,8 +235,6 @@ public class Player_Movement : MonoBehaviour
 
     private IEnumerator firstAttackRoutine()
     {
-        //Debug.Log("Attack 1");
-        //canAttack = false;//dont let the player spam the attack
         isAttacking = true;//
         rb.velocity = new Vector2(0f, 0f);
         yield return new WaitForSeconds(0.4f);
@@ -259,7 +253,6 @@ public class Player_Movement : MonoBehaviour
 
     private IEnumerator secondAttackRoutine()
     {
-        //Debug.Log("Attack 2");
         canAttack = false;
         inSecondAttack = true;
         yield return new WaitForSeconds(0.1f);
@@ -298,7 +291,6 @@ public class Player_Movement : MonoBehaviour
 
     private void animationHandler()
     {
-        //Debug.Log("X: " + rb.velocity.x + " Grounded: " + isGrounded());
         //running / idle section
         if(rb.velocity.x != 0f && isGrounded())
         {
@@ -371,17 +363,15 @@ public class Player_Movement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //if(collision.gameObject.name == "Trap")
-        //{
-        //  Die(collision.gameObject);
-        //}
-        //Debug.Log(collision.gameObject.name);//to check trap
+        if(collision.gameObject.name == "Monk")//tag enemy or trap its dead
+        {
+          Die(collision.gameObject);
+        }
     }
 
     public void Die(GameObject killer)//get which game object killed the player
     {
         Debug.Log("I'm dead by: "+killer.name);
-        //Debug.Log("I'm dead now. The " + killer.name +"killed me!");
         //load a new scene for each gameobject (unless it's the boss)
         //myRigidBody.bodyType = RigidbodyType2D.Static; -> don't let the player move (it's dead)
         //animation.SetTrigger("Death"); -> go to death animation

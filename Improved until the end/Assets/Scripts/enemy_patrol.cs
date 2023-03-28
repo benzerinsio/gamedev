@@ -44,7 +44,7 @@ public class enemy_patrol : MonoBehaviour
     private float attackRange = 2.5f;
     private bool canAttack = true;
     private float attackCooldown = 1f;
-    private Player_Movement player_movement;
+    private  Player_Movement pm;
 
     //Animation Section
     private Animator animator;
@@ -54,6 +54,7 @@ public class enemy_patrol : MonoBehaviour
 
     void Start()
     {
+        pm = player.GetComponent<Player_Movement>();
         charging = false;
         dashing = false;
         state = MovementState.walk;
@@ -73,7 +74,6 @@ public class enemy_patrol : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log("Point" + currentPoint.transform);
         distance = Vector2.Distance(transform.position, player.transform.position);
         if (!isFollowing && inDashAnimation || distance <= attackRange)
         {
@@ -97,7 +97,6 @@ public class enemy_patrol : MonoBehaviour
 
                     if (canAttack)
                     {
-                        //Debug.Log("a");
                         StartCoroutine(attack());
                     }
                 }
@@ -110,11 +109,9 @@ public class enemy_patrol : MonoBehaviour
 
         if (Vector2.Distance(transform.position, currentPoint.position) < 0.1f && currentPoint == pointB.transform && speed > 0f && !isFollowing)
         {
-            //StartCoroutine(changePoint(pointA));
             changePointNoWait(pointA);
         } else if (Vector2.Distance(transform.position, currentPoint.position) < 0.1f && currentPoint == pointA.transform && speed > 0f && !isFollowing)
         {
-            //StartCoroutine(changePoint(pointB));
             changePointNoWait(pointB);
         }
 
@@ -123,7 +120,6 @@ public class enemy_patrol : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //Debug.Log(rb.velocity.x);
         if (inDashAnimation || !canAttack)//atualmente cancela o rotate e a velocidade
         {
             return;
@@ -167,19 +163,15 @@ public class enemy_patrol : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
     }
 
-    //private IEnumerator jumpCut()
     private IEnumerator dashAttack()
     {
         charging = true;
         inDashAnimation = true;
         canDash = false;
         rb.velocity = new Vector2(0f, 0f);
-        //change animation to pre attack
         yield return new WaitForSeconds(preDashTimer);
         charging = false;
         dashing = true;
-        //dashing
-        //change animation to attack
         if (isFacingRight)
         {
             rb.velocity = new Vector2(dashPower, 0f);
@@ -192,9 +184,6 @@ public class enemy_patrol : MonoBehaviour
         dashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
-
-        // rb.velocity = new Vector2(horizontalDirection * dashingPower, verticalDirection * dashingPower);
-        //normal dash since is using 
     }
     private void OnDrawGizmosSelected()
     {
@@ -202,20 +191,16 @@ public class enemy_patrol : MonoBehaviour
     }
     private IEnumerator attack()
     {
-        //rb.velocity = new Vector2(0f, 0f);
         canAttack = false;
         Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackCircle);
         foreach (Collider2D name in hitPlayer)
         {
             if (name.name == "Player")
             {
-                Debug.Log("Bati no troxa");
-                //player_movement.Die(gameObject);
+                pm.Die(gameObject);
+                
             }
-            //Debug.Log(name.name);
-            //mandar para a fase de monks only e avisar o player
         }
-        //Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
     }
