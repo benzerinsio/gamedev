@@ -363,7 +363,7 @@ public class Player_Movement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.name == "Monk")//tag enemy or trap its dead
+        if(collision.gameObject.tag == "Enemy")//tag enemy or trap its dead
         {
           Die(collision.gameObject);
         }
